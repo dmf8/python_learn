@@ -4,14 +4,18 @@ import pandas as pd
 cg = Config("config/config.json")
 # cg.output()
 
-df = pd.read_excel("test.xlsx", sheet_name="Sheet2")
+dfs = pd.read_excel("test.xlsx", None)
+df2 = pd.read_excel("test.xlsx", "Sheet2")
 
-# print(df.info())
-# print(df.describe())
-# print(df.dtypes)
+print(df2.index)
+print(len(df2.index))
 
-columns = df.columns
-
-df2 = df.sort_values()
-# print(df)
 print(df2)
+print("-------------")
+# print(df2[0:5])
+# rows = len(df2.index)
+
+# df2.index = range(3, rows+3)
+# df2.columns = df2.iloc[1]
+# df2.reset_index()
+# print(df2)
