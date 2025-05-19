@@ -1,17 +1,25 @@
 from config.config import Config
 import pandas as pd
+from read.get_dataframe import *
 
-cg = Config("config/config.json")
+# cg = Config("config/config.json")
 # cg.output()
 
-dfs = pd.read_excel("test.xlsx", None)
-df2 = pd.read_excel("test.xlsx", "Sheet2")
 
-print(df2.index)
-print(len(df2.index))
+df = getDataframe("test.xlsx", "Sheet2", 3)
 
-print(df2)
-print("-------------")
+
+col_name = testColumnName(df, "g")
+print(f"test name {col_name}")
+
+# dfs = pd.read_excel("test.xlsx", None)
+# df2 = pd.read_excel("test.xlsx", "Sheet3")
+
+# print(df2.index)
+# print(len(df2.index))
+
+# print(df2)
+# print("-------------")
 # print(df2[0:5])
 # rows = len(df2.index)
 
