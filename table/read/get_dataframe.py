@@ -1,5 +1,7 @@
 import pandas as pd
 import re
+import operator
+import ast
 
 
 def getDataframe(file_name, sheet_name, header=0) -> pd.DataFrame:
@@ -12,12 +14,46 @@ def getDataframe(file_name, sheet_name, header=0) -> pd.DataFrame:
     return df
 
 
-def testColumnName(df: pd.DataFrame, name: str) -> str:
+def checkColumnName(df: pd.DataFrame, name: str) -> str:
     columns = df.columns
     for c in columns:
         if _matchName(name, c):
             return c
     return ""
+
+
+def filtColumnsPrecisely(df: pd.DataFrame, columns) -> pd.DataFrame:
+    checked_columns = []
+    for c in columns:
+        if df.columns.__contains__(c):
+            checked_columns.append(c)
+        else:
+            print(f"column name <{c}> not found")
+    return df[checked_columns]
+
+
+def filtColumnsFuzzily(df: pd.DataFrame, columns) -> pd.DataFrame:
+    checked_columns = checkColumnNames(df, columns)
+    return filtColumnsPrecisely(df, checked_columns)
+
+
+def filtCondition(df: pd.DataFrame, column_name: str, condition: str) -> pd.DataFrame:
+    op, data = _parseCondition(condition)
+    if op == None:
+        return df
+    df2 = df.loc[op(df[column_name], data), :]
+    print(df2)
+
+
+def checkColumnNames(df: pd.DataFrame, columns):
+    check_names = []
+    for c in columns:
+        check = checkColumnName(df, c)
+        if check != "":
+            check_names.append(check)
+        else:
+            print(f"column name <{c}> not found")
+    return check_names
 
 
 def _matchName(name: str, col: str) -> bool:
@@ -26,3 +62,24 @@ def _matchName(name: str, col: str) -> bool:
         return True
     else:
         return False
+
+
+def _parseCondition(condition: str):
+    ops = {
+        "==": operator.eq,
+        "!=": operator.ne,
+        ">=": operator.ge,
+        "<=": operator.le,
+        ">": operator.gt,
+        "<": operator.lt,
+    }
+    reg = "(==|!=|>=|<=|>|<)(.*)"
+    match = re.search(reg, condition)
+    if match == None:
+        return None, None
+    if not (ops.__contains__(match.group(1))):
+        return None, None
+    op = ops[match.group(1)]
+    data = ast.literal_eval(match.group(2))
+    print(f"get data {data} of type {type(data)} from condition {condition}")
+    return op, data
