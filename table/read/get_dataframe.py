@@ -4,13 +4,14 @@ import operator
 import ast
 
 
-def getDataframe(file_name, sheet_name, header=0) -> pd.DataFrame:
+def getDataframe(file_name: str, sheet_name: str, header: int = 0) -> pd.DataFrame:
+    """Get DataFrame by file, sheet, and header line"""
     df = pd.DataFrame()
     try:
         with open(file_name, "r") as f:
             df = pd.read_excel(file_name, sheet_name, header=header)
     except Exception as e:
-        print(f"read error {str(e)}")
+        raise Exception(f"read error: {str(e)}")
     return df
 
 
@@ -22,7 +23,7 @@ def checkColumnName(df: pd.DataFrame, name: str) -> str:
     return ""
 
 
-def filtColumnsPrecisely(df: pd.DataFrame, columns) -> pd.DataFrame:
+def filtColumnsPrecisely(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     checked_columns = []
     for c in columns:
         if df.columns.__contains__(c):
@@ -32,7 +33,7 @@ def filtColumnsPrecisely(df: pd.DataFrame, columns) -> pd.DataFrame:
     return df[checked_columns]
 
 
-def filtColumnsFuzzily(df: pd.DataFrame, columns) -> pd.DataFrame:
+def filtColumnsFuzzily(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     checked_columns = checkColumnNames(df, columns)
     return filtColumnsPrecisely(df, checked_columns)
 
@@ -42,10 +43,10 @@ def filtCondition(df: pd.DataFrame, column_name: str, condition: str) -> pd.Data
     if op == None:
         return df
     df2 = df.loc[op(df[column_name], data), :]
-    print(df2)
+    return df2
 
 
-def checkColumnNames(df: pd.DataFrame, columns):
+def checkColumnNames(df: pd.DataFrame, columns: list[str]) -> list[str]:
     check_names = []
     for c in columns:
         check = checkColumnName(df, c)
@@ -83,3 +84,12 @@ def _parseCondition(condition: str):
     data = ast.literal_eval(match.group(2))
     print(f"get data {data} of type {type(data)} from condition {condition}")
     return op, data
+
+
+def checkSorting(sorting: str) -> bool:
+    if sorting == "^":
+        return True
+    elif sorting == "v" or sorting == "V":
+        return False
+    else:
+        return None
