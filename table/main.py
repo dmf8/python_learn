@@ -17,7 +17,7 @@ import operator
 # print(df.loc[(df["a"]*df["a"]) >= 100, ["a", "b"]])
 
 
-cg = Config("config/config.json")
+cg = Config("debug/config.json")
 for sheet in cg.sheets:
     # print(f"names of sheet {sheet.sheet}: {sheet.getColumnNames()}")
     names, ascendings = sheet.getSortings()
