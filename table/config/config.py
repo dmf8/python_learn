@@ -81,7 +81,7 @@ def parseColumn(column: dict) -> Column:
 
 class Config:
     def __init__(self, path: str):
-        self.sheets = parseJson(path)
+        self.sheets: list[Sheet] = parseJson(path)
 
     def output(self):
         print(self.sheets)
