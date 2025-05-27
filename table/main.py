@@ -3,11 +3,12 @@ from config.config import Sheet
 import pandas as pd
 from read.get_dataframe import *
 import os
+import operator
 
 
-# cg = Config("config/config.json")
-# for sheet in cg.sheets:
-#     names, ascendings = sheet.getSortings()
+cg = Config("debug/config.json")
+for sheet in cg.sheets:
+    names, ascendings = sheet.getSortings()
 
 
 def getDataByConfig(path: str):
