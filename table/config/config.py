@@ -15,7 +15,7 @@ class Sheet:
         self.header: int = 0
         self.columns: list[Column] = []
 
-    def getColumnNames(self) -> str:
+    def columnNames(self) -> str:
         names = []
         for c in self.columns:
             names.append(c.name)
