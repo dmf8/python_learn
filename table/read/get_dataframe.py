@@ -36,7 +36,7 @@ def checkColumnNames(df: pd.DataFrame, columns: list[str]) -> list[str]:
             check = checkColumnName(df, c)
             check_names.append(check)
         except Exception as e:
-            print(e)
+            print(f"{__name__} error: {e}")
     return check_names
 
 
@@ -47,8 +47,16 @@ def filtColumnsPrecisely(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
         if df.columns.__contains__(c):
             checked_columns.append(c)
         else:
-            print(f"column name <{c}> not found")
+            print(f"{__name__} column name <{c}> not found")
     return df[checked_columns]
+
+
+def fillEmpty(df: pd.DataFrame, column: str, fill: bool) -> pd.DataFrame:
+    if not fill:
+        return df
+    else:
+        df[column] = df[column].ffill()
+        return df
 
 
 def filtColumnsFuzzily(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
@@ -66,7 +74,7 @@ def filtCondition(df: pd.DataFrame, column_name: str, condition: str) -> pd.Data
         df2 = df[op(df[column_name], data)]
         return df2
     except Exception as e:
-        print(e)
+        print(f"{__name__} error: {e}")
         return df
 
 
@@ -85,7 +93,7 @@ def _matchAll(target: str | pd.Series, pattern: str) -> bool | list[bool]:
         return ret
 
 
-def _parseCondition(condition: str) -> tuple[Callable[[Any, Any], bool],  Any]:
+def _parseCondition(condition: str) -> tuple[Callable[[Any, Any], bool], Any]:
     """parse condition string to get operation function and data
 
     Raise
@@ -109,12 +117,3 @@ def _parseCondition(condition: str) -> tuple[Callable[[Any, Any], bool],  Any]:
     print(match.group(2))
     data = ast.literal_eval(match.group(2))
     return op, data
-
-
-def checkSorting(sorting: str) -> bool:
-    if sorting == "^":
-        return True
-    elif sorting == "v" or sorting == "V":
-        return False
-    else:
-        return None

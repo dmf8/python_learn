@@ -6,6 +6,7 @@ class Column:
         self.name: str = ""
         self.condition: str = ""
         self.ordering: str = ""
+        self.ffill: bool = False
 
 
 class Sheet:
@@ -78,6 +79,8 @@ def parseColumn(column: dict) -> Column:
         c.condition = column["condition"]
     if column.__contains__("ordering"):
         c.ordering = column["ordering"]
+    if column.__contains__("ffill"):
+        c.ffill = column["ffill"]
     return c
 
 
