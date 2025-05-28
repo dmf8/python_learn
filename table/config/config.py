@@ -15,13 +15,15 @@ class Sheet:
         self.header: int = 0
         self.columns: list[Column] = []
 
-    def columnNames(self) -> str:
+    def columnNames(self) -> list[str]:
+        """get all interested columns in sheet"""
         names = []
         for c in self.columns:
             names.append(c.name)
         return names
 
-    def getSortings(self) -> tuple[list[str], list[bool]]:
+    def sortings(self) -> tuple[list[str], list[bool]]:
+        """get all sorting types of columns"""
         names: str = []
         ascendings: bool = []
         for c in self.columns:

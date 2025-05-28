@@ -23,7 +23,7 @@ def checkColumnName(df: pd.DataFrame, name: str) -> str:
     """
     columns = df.columns
     for c in columns:
-        if _matchAll(name, c):
+        if _matchAll(c, name):
             return c
     raise Exception(f"column {name} not found")
 
@@ -63,25 +63,29 @@ def filtCondition(df: pd.DataFrame, column_name: str, condition: str) -> pd.Data
     print(f"condition {condition} of {column_name}")
     try:
         op, data = _parseCondition(condition)
-        print(op)
-        print(f"data {data} {type(data)}")
-        df = df.loc[op(df[column_name], data), :]
-        print(df)
-        return df
+        df2 = df[op(df[column_name], data)]
+        return df2
     except Exception as e:
         print(e)
         return df
 
 
-def _matchAll(pattern: str, target: str) -> bool:
-    match = re.search(pattern, target)
-    if match != None and match.group(0) == target:
-        return True
+def _matchAll(target: str | pd.Series, pattern: str) -> bool | list[bool]:
+    """try to match target with regexp pattern"""
+    if isinstance(target, str):
+        match = re.search(pattern, target)
+        if match != None and match.group(0) == target:
+            return True
+        else:
+            return False
     else:
-        return False
+        ret = []
+        for t in target:
+            ret.append(_matchAll(t, pattern))
+        return ret
 
 
-def _parseCondition(condition: str) -> tuple[Callable[[Any, Any], bool], Any]:
+def _parseCondition(condition: str) -> tuple[Callable[[Any, Any], bool],  Any]:
     """parse condition string to get operation function and data
 
     Raise

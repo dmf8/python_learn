@@ -4,47 +4,15 @@ import pandas as pd
 from read.get_dataframe import *
 import os
 import operator
+import argparse
 
-
-cg = Config("debug/config.json")
-for sheet in cg.sheets:
-    names, ascendings = sheet.getSortings()
-
-
-def getDataByConfig(path: str):
-    config = Config(path)
-    dfs: list[pd.DataFrame] = []
-    for sheet in config.sheets:
-        df = getDataFrameByConfig(sheet)
-        if None != df:
-            dfs.append(df)
-    with pd.ExcelWriter("out.xlsx", engine="openpyxl") as writer:
-        i = 0
-        for df in dfs:
-            df.to_excel(writer, sheet_name=f"Sheet{i}", index=False)
-            i += 1
-
-
-def getDataFrameByConfig(sheet: Sheet) -> pd.DataFrame:
-    # check column names
-    sheet = checkSheetColumns(sheet)
-    df = getDataframe(sheet.file, sheet.sheet, sheet.header)
-    # filt by column names
-    df = filtColumnsPrecisely(df, sheet.columnNames())
-    # filt by column conditions
-    for column in sheet.columns:
-        df = filtCondition(df, column.name, column.condition)
-    # sorting
-    sort_cols = []
-    sort_type = []
-    for column in sheet.columns:
-        check_type = checkSorting(column.ordering)
-        if None != check_type:
-            sort_cols.append(column.name)
-            sort_type.append(check_type)
-    df = df.sort_values(sort_cols, ascending=sort_type)
-    # finish
-    return df
+parser = argparse.ArgumentParser(
+    description="excel data reader by configurations"
+)
+parser.add_argument("config", help="configuration file",
+                    default="config.json", nargs="?")
+args = parser.parse_args()
+print(args.config)
 
 
 def checkSheetColumns(sheet: Sheet, df: pd.DataFrame) -> Sheet:
@@ -62,14 +30,13 @@ def checkSheetColumns(sheet: Sheet, df: pd.DataFrame) -> Sheet:
         except:
             sheet2.columns.pop(j)
     if len(sheet2.columns) == 0:
-        raise Exception(f"empty sheet {sheet2.file} {sheet2.sheet}")
+        raise Exception(f"empty sheet: {sheet2.file}/{sheet2.sheet}")
     return sheet2
 
 
 # main
 def main():
-    path = "config/config.json"
-    config = Config(path)
+    config = Config(args.config)
     for sheet in config.sheets:
         try:
             df = getDataframe(sheet.file, sheet.sheet, sheet.header)
@@ -77,32 +44,11 @@ def main():
             df = filtColumnsPrecisely(df, checked_sheet.columnNames())
             for column in checked_sheet.columns:
                 df = filtCondition(df, column.name, column.condition)
+            sort_cols, sort_types = sheet.sortings()
+            df = df.sort_values(sort_cols, ascending=sort_types)
             print(df)
-            # # sorting
-            # sort_cols = []
-            # sort_type = []
-            # for column in sheet.columns:
-            #     check_type = checkSorting(column.ordering)
-            #     if None != check_type:
-            #         sort_cols.append(column.name)
-            #         sort_type.append(check_type)
-            # df = df.sort_values(sort_cols, ascending=sort_type)
-            # # finish
-            # return df
         except Exception as e:
-            print(e)
+            print(f"get sheet {sheet.file}/{sheet.sheet} with error: {e}")
 
 
 main()
-# df = getDataFrameByConfig(sheet)
-# if None != df:
-#     dfs.append(df)
-
-
-# try:
-# os.remove("out.xlsx")
-# getDataByConfig("config/config.json")
-# df = getDataframe("test.xlsx", "Sheet2", 4)
-# print(df)
-# except Exception as e:
-#     print(e)
